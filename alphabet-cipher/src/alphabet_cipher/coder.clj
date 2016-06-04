@@ -35,6 +35,27 @@
 (defn subtract-letters [l1 l2]
   (normalize-letter (- l1 l2)))
 
+(defn str-first
+  "Returns the first character in a string as a string"
+  [string]
+  (subs string 0 1))
+
+(defn str-rest
+  "Returns the rest of the characters in a string as a string"
+  [string]
+  (subs string 1))
+
+;; This will fail if a pattern isn't matched
+;; (index out of bounds thrown by subs
+;; Switch to cond to account for the failure case
+(defn detectPattern [repeatedString]
+  (loop [start (str-first repeatedString)
+         end (str-rest repeatedString)]
+    (if (= start (subs end 0 (.length start)))
+      start
+      (recur (str start (str-first end))
+             (str-rest end)))))
+
 (defn encode [keyword message]
    (let [keyword-ints (string-to-alphabet-numbers keyword)
          keyword-offset-cycle (cycle keyword-ints)
@@ -50,5 +71,5 @@
 (defn decipher [cipher message]
   (let [cipher-ints (string-to-alphabet-numbers cipher)
         message-ints (string-to-alphabet-numbers message)]
-    (apply str (alphabet-numbers-to-string (map subtract-letters cipher-ints message-ints)))))
+    (detectPattern (apply str (alphabet-numbers-to-string (map subtract-letters cipher-ints message-ints))))))
 
