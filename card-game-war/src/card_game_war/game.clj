@@ -1,5 +1,11 @@
 (ns card-game-war.game)
 
+;; Convenience mappings for readability
+(def draw-from first)
+(def remaining-deck rest)
+(def discard-into concat)
+(def out-of-cards empty?)
+
 ;; feel free to use these cards or use your own data structure
 (def suits [:spade :club :diamond :heart])
 (def ranks [2 3 4 5 6 7 8 9 10 :jack :queen :king :ace])
@@ -29,13 +35,10 @@
   "When the deck is exhausted, this will shuffle the discard
   pile and make it the deck."
   [start end]
-  (if (empty? start)
+  (if (out-of-cards start)
     (do (println "===== erryday I'm shuffling =====") [(shuffle end) []])
     [start end]))
 
-;; Convenience mappings for readability
-(def draw-from first)
-(def discard-into concat)
 
 (defn play-round
   "Takes two cards, returns a vector of cards to add to the
@@ -57,11 +60,11 @@
           [p2-draw-pile, p2-discard-pile] (fix-decks p2-draw-pile p2-discard-pile)
           _ (println "p2 decks" (count p2-draw-pile) (count p2-discard-pile))]
       (cond
-        (empty? p1-draw-pile) "Player 1 Lost!"
-        (empty? p2-draw-pile) "Player 2 Lost!"
+        (out-of-cards p1-draw-pile) "Player 1 Lost!"
+        (out-of-cards p2-draw-pile) "Player 2 Lost!"
         :else (let [results (play-round (draw-from p1-draw-pile) (draw-from p2-draw-pile))]
                 (recur
-                  (rest p1-draw-pile)
+                  (remaining-deck p1-draw-pile)
                   (discard-into p1-discard-pile (first results))
-                  (rest p2-draw-pile)
+                  (remaining-deck p2-draw-pile)
                   (discard-into p2-discard-pile (second results))))))))
